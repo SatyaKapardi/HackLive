@@ -1,6 +1,12 @@
 export function formatDateRange(startDate: string | Date, endDate: string | Date): string {
+  // Handle date parsing more robustly
   const start = new Date(startDate);
   const end = new Date(endDate);
+  
+  // Check if dates are valid
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return 'Date TBD';
+  }
   
   // Format the dates
   const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
