@@ -12,20 +12,8 @@ export default function Footer() {
             <p className="text-muted-foreground mt-2">The most comprehensive hackathon discovery platform</p>
           </div>
           <div className="flex flex-wrap gap-6 justify-center md:justify-end">
-            <Link href="/about">
-              <a className="text-muted-foreground hover:text-primary">About</a>
-            </Link>
-            <Link href="/post">
-              <a className="text-muted-foreground hover:text-primary">Post a Hackathon</a>
-            </Link>
-            <Link href="/contact">
-              <a className="text-muted-foreground hover:text-primary">Contact</a>
-            </Link>
-            <Link href="/privacy">
-              <a className="text-muted-foreground hover:text-primary">Privacy Policy</a>
-            </Link>
-            <Link href="/terms">
-              <a className="text-muted-foreground hover:text-primary">Terms of Service</a>
+            <Link href="/admin">
+              <a className="text-muted-foreground hover:text-primary">Admin Panel</a>
             </Link>
           </div>
         </div>
