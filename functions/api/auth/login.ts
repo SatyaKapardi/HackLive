@@ -1,5 +1,3 @@
-import { D1Storage } from '../../../server/d1-storage';
-
 interface Env {
   DB: D1Database;
 }
@@ -16,8 +14,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
-    const storage = new D1Storage(context.env.DB);
-    const user = await storage.getUserByUsername(username);
+    const user = await context.env.DB.prepare("SELECT * FROM users WHERE username = ?").bind(username).first();
 
     if (!user || user.password !== password) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
