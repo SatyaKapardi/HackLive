@@ -26,8 +26,21 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const results = await context.env.DB.prepare("SELECT * FROM hackathons ORDER BY created_at DESC").all();
     
     const hackathons = results.results.map((row: any) => ({
-      ...row,
+      id: row.id,
+      name: row.name,
+      organizerName: row.organizer_name,
+      startDate: row.start_date,
+      endDate: row.end_date,
+      location: row.location,
+      format: row.format,
+      description: row.description,
+      prizePool: row.prize_pool,
+      registrationDeadline: row.registration_deadline,
+      status: row.status,
       tags: JSON.parse(row.tags),
+      experienceLevel: row.experience_level,
+      imageUrl: row.image_url,
+      websiteUrl: row.website_url,
       createdAt: new Date(row.created_at)
     }));
     
