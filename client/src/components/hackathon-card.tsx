@@ -112,9 +112,14 @@ export default function HackathonCard({ hackathon, onViewDetails }: HackathonCar
           <Button 
             variant="link" 
             className="text-primary hover:text-primary/80 text-sm font-medium"
-            onClick={() => onViewDetails(hackathon.id)}
+            onClick={() => {
+              if (hackathon.websiteUrl) {
+                window.open(hackathon.websiteUrl, '_blank');
+              }
+            }}
+            disabled={!hackathon.websiteUrl}
           >
-            View Details
+            {hackathon.websiteUrl ? 'View Details' : 'No Website'}
           </Button>
         </div>
       </div>
