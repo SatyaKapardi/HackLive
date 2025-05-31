@@ -1,9 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertHackathonSchema, insertUserSchema } from "@shared/schema";
-import { fromZodError } from "zod-validation-error";
-import { z } from "zod";
+import type { InsertHackathon, InsertUser } from "@shared/schema";
 
 // Authentication middleware
 const authenticateAdmin = async (req: Request, res: Response, next: NextFunction) => {
@@ -42,19 +40,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const loginSchema = z.object({
-        username: z.string().email(),
-        password: z.string().min(6)
-      });
+      const { username, password } = req.body;
       
-      const result = loginSchema.safeParse(req.body);
-      
-      if (!result.success) {
-        const validationError = fromZodError(result.error);
-        return res.status(400).json({ message: validationError.message });
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
       }
-      
-      const { username, password } = result.data;
       
       // Check if user exists
       const user = await storage.getUserByUsername(username);
@@ -121,14 +111,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new hackathon - protected by admin auth
   app.post("/api/hackathons", authenticateAdmin, async (req, res) => {
     try {
-      const result = insertHackathonSchema.safeParse(req.body);
+      const { name, organizerName, startDate, endDate, location, format, description } = req.body;
       
-      if (!result.success) {
-        const validationError = fromZodError(result.error);
-        return res.status(400).json({ message: validationError.message });
+      if (!name || !organizerName || !startDate || !endDate || !location || !format || !description) {
+        return res.status(400).json({ message: "Missing required fields" });
       }
       
-      const hackathon = await storage.createHackathon(result.data);
+      const hackathon = await storage.createHackathon(req.body as InsertHackathon);
       res.status(201).json(hackathon);
     } catch (error) {
       console.error("Error creating hackathon:", error);
@@ -149,15 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hackathon not found" });
       }
 
-      // Partial validation of update data
-      const result = insertHackathonSchema.partial().safeParse(req.body);
-      
-      if (!result.success) {
-        const validationError = fromZodError(result.error);
-        return res.status(400).json({ message: validationError.message });
-      }
-      
-      const updatedHackathon = await storage.updateHackathon(id, result.data);
+      const updatedHackathon = await storage.updateHackathon(id, req.body);
       res.json(updatedHackathon);
     } catch (error) {
       console.error("Error updating hackathon:", error);
