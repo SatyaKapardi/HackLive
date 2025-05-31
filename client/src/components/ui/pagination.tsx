@@ -81,8 +81,8 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             className={cn(
               "px-3 py-1 rounded-md",
               currentPage === page 
-                ? "bg-primary text-white" 
-                : "text-muted-foreground hover:bg-gray-100"
+                ? "bg-blue-600 text-white hover:bg-blue-700 border-blue-600" 
+                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             )}
           >
             {page}
