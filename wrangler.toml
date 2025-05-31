@@ -1,19 +1,19 @@
 name = "hackathon-listing-app"
-main = "functions/_middleware.ts"
 compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
 
 [build]
-command = "npm run build"
+command = "npx vite build --outDir dist"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "hackathon-db"
-database_id = "57086ee6-17f3-4fbd-bdc1-7c9a89db0c14"
+database_id = "REPLACE_WITH_YOUR_ACTUAL_DATABASE_ID"
 
 [env.production.d1_databases]
 binding = "DB"
 database_name = "hackathon-db"
-database_id = "57086ee6-17f3-4fbd-bdc1-7c9a89db0c14"
+database_id = "REPLACE_WITH_YOUR_ACTUAL_DATABASE_ID"
 
 [vars]
 ENVIRONMENT = "production"
