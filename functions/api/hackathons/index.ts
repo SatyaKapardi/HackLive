@@ -1,14 +1,35 @@
-import { D1Storage } from '../../../server/d1-storage';
-import { insertHackathonSchema } from '../../../shared/schema';
-
 interface Env {
   DB: D1Database;
 }
 
+interface Hackathon {
+  id: number;
+  name: string;
+  organizer_name: string;
+  start_date: string;
+  end_date: string;
+  location: string;
+  format: string;
+  description: string;
+  prize_pool?: number;
+  registration_deadline?: string;
+  status: string;
+  tags: string; // JSON string
+  experience_level: string;
+  image_url?: string;
+  website_url?: string;
+  created_at?: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   try {
-    const storage = new D1Storage(context.env.DB);
-    const hackathons = await storage.getHackathons();
+    const results = await context.env.DB.prepare("SELECT * FROM hackathons ORDER BY created_at DESC").all();
+    
+    const hackathons = results.results.map((row: any) => ({
+      ...row,
+      tags: JSON.parse(row.tags),
+      createdAt: new Date(row.created_at)
+    }));
     
     return new Response(JSON.stringify(hackathons), {
       headers: { 'Content-Type': 'application/json' }
@@ -44,11 +65,44 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const data = await context.request.json();
     
-    // Validate the data
-    const validatedData = insertHackathonSchema.parse(data);
+    // Basic validation
+    if (!data.name || !data.organizerName || !data.startDate || !data.endDate || !data.location) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
-    const storage = new D1Storage(context.env.DB);
-    const hackathon = await storage.createHackathon(validatedData);
+    const tagsJson = JSON.stringify(data.tags || []);
+    
+    const result = await context.env.DB.prepare(`
+      INSERT INTO hackathons (
+        name, organizer_name, start_date, end_date, location, format, description,
+        prize_pool, registration_deadline, status, tags, experience_level, image_url, website_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      RETURNING *
+    `).bind(
+      data.name,
+      data.organizerName,
+      data.startDate,
+      data.endDate,
+      data.location,
+      data.format,
+      data.description,
+      data.prizePool,
+      data.registrationDeadline,
+      data.status || 'Open',
+      tagsJson,
+      data.experienceLevel,
+      data.imageUrl,
+      data.websiteUrl
+    ).first();
+
+    const hackathon = {
+      ...result,
+      tags: JSON.parse(result.tags as string),
+      createdAt: new Date(result.created_at as string)
+    };
     
     return new Response(JSON.stringify(hackathon), {
       headers: { 'Content-Type': 'application/json' }
